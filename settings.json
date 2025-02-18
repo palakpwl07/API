@@ -1,0 +1,54 @@
+{
+    "beat_detection": {
+        "enabled": 1,
+        "auto_merge": 1,
+        "chnl_mask": 3,
+        "chnl_mask_templates": 3,
+        "end_minute": 5760,
+        "minimum_noise_distance": 5000,
+        "noise_detector_sensitivity": 2,
+        "start_minute": 0
+    },
+    "rhythm_analysis": {
+        "enabled": 1,
+        "brady_duration": 10000,
+        "brady_threshold": 45,
+        "detect_s_beats": 1,
+        "find_afibs": 1,
+        "find_rhythms": 1,
+        "pause_threshold": 2500,
+        "premature_index": 75,
+        "prolonged_rr_interval": 200,
+        "rrp_window_size": 8,
+        "supra_ventricular_tachy_threshold": 150,
+        "tachy_duration": 5000,
+        "ventricular_tachy_threshold": 150,
+        "afib_duration": 0
+    },
+    "beat_measures": {
+        "enabled": 1,
+        "options": {
+            "chnl_mask": 3,
+            "time_bin_dimension": 30,
+            "analyze_st": 1,
+            "analyze_vm": 0,
+            "start_step_window": 100,
+            "nr_of_elevation_points": 1,
+            "elevation_points_interval": 10,
+            "st_elevation_threshold": 100,
+            "st_displacement_min_len": 30
+        },
+        "period1": {
+            "start": 0,
+            "end": 60000
+        },
+        "period2": {
+            "start": 60000,
+            "end": 120000
+        },
+        "period3": {
+            "start": 120000,
+            "end": 180000
+        }
+    }
+}
