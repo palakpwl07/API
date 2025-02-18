@@ -1,15 +1,30 @@
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Query, Path
-from typing import List, Dict, Optional
+from typing import Dict, Optional
 from pydantic import BaseModel
 import jwt
 import datetime
 import base64
+import json
 
 app = FastAPI()
 
 SECRET_KEY = "your_secret_key_here"
 ALGORITHM = "HS256"
 BASE_URL = "https://ecg-analysis.vivalnk.com"
+
+# Function to load JSON data
+def load_json_file(file_path: str):
+    try:
+        with open(file_path, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail=f"File {file_path} not found.")
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=500, detail=f"Error decoding JSON from {file_path}.")
+
+# Load demographic and settings JSON files
+DEMOGRAPHIC_FILE = "demographic_data.json"
+SETTINGS_FILE = "settings_data.json"
 
 class AuthRequest(BaseModel):
     grant_type: str
@@ -40,13 +55,52 @@ class AnalysisResponse(BaseModel):
 @app.post("/upload", response_model=AnalysisResponse)
 def upload_ecg_file(
     file: UploadFile = File(...),
-    demographic: Optional[dict] = None,
     authorization: str = Depends()
 ):
+    """
+    Upload ECG File
+    - Requires Bearer token authentication
+    - Reads demographic data from JSON file automatically
+    """
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid Authorization Header")
-    
-    return {"message": "ECG file uploaded successfully"}
+
+    demographic_data = load_json_file(DEMOGRAPHIC_FILE)
+
+    return {
+        "task_id": "generated_task_id_12345",
+        "upload_url": f"{BASE_URL}/upload",
+        "demographic_data": demographic_data
+    }
+
+class SubmitTaskRequest(BaseModel):
+    url: str  # Publicly accessible raw ECG file URL
+
+class SubmitTaskResponse(BaseModel):
+    task_id: str  # Task ID for tracking
+
+@app.post("/submit", response_model=SubmitTaskResponse)
+def submit_task(
+    request: SubmitTaskRequest,
+    authorization: str = Depends()
+):
+    """
+    Submit a Task for ECG Analysis
+    - Requires Bearer token authentication
+    - Reads demographic and settings data from JSON files automatically
+    """
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid Authorization Header")
+
+    demographic_data = load_json_file(DEMOGRAPHIC_FILE)
+    settings_data = load_json_file(SETTINGS_FILE)
+
+    return {
+        "task_id": "generated_task_id_12345",
+        "demographic_data": demographic_data,
+        "settings_data": settings_data
+    }
+
 
 @app.get("/tasks")
 def get_all_tasks(
